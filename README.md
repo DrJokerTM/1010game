@@ -64,11 +64,15 @@
    - Tlačítko "Pokračovat".
    - Zobrazení aktuálního nejvyššího skóre a nejlepších výsledků.
 
+   ![Menu](./images/menu.png)
+
 2. **Herní obrazovka**:
 
    - Herní pole 10x10.
    - Tři dostupné bloky k umístění.
-   - Tlačítko "Reset".
+   - Tlačítko "Pauza".
+   
+   ![Hra](./images/hra.png)
 
 3. **Obrazovka žebříčků**:
 
