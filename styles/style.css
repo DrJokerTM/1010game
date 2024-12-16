@@ -1,0 +1,151 @@
+/* Základní stylování */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    text-align: center;
+}
+
+header {
+    background-color: #0077cc;
+    color: white;
+    padding: 1rem 0;
+}
+
+footer {
+    background-color: #0077cc;
+    color: white;
+    padding: 0.5rem 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+main {
+    margin: 2rem;
+}
+
+button {
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0.5rem;
+}
+
+button:hover {
+    background-color: #005fa3;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Herní menu */
+#menu {
+    text-align: center;
+}
+
+#highScore {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Herní plocha */
+#gameBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-gap: 2px;
+    background-color: #ccc;
+    padding: 5px;
+    border: 2px solid #333;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.cell.filled {
+    background-color: #0077cc;
+    border-radius: 5px;
+}
+
+#blocks {
+    display: flex;
+    margin: 1rem;
+}
+
+.block {
+    width: 60px;
+    height: 60px;
+    background-color: #0077cc;
+    margin: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+/* Žebříček */
+#leaderboard {
+    text-align: center;
+}
+
+#leaderboardList {
+    list-style: none;
+    padding: 0;
+}
+
+#leaderboardList li {
+    padding: 0.5rem;
+    background-color: #eee;
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#blocks {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 1px solid #0077cc;
+    margin: 0 10px;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-gap: 2px;
+    background-color: #ccc;
+    padding: 5px;
+    border: 2px solid #333;
+}

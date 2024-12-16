@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1010 Hra</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <header>
+        <h1>1010 Hra</h1>
+    </header>
+
+    <main>
+        <!-- Hlavní menu -->
+        <section id="menu">
+            <button id="newGameButton">Nová hra</button>
+            <button id="continueGameButton">Pokračovat</button>
+            <h2>Nejvyšší skóre</h2>
+            <div id="highScore">0</div>
+        </section>
+
+        <!-- Herní plocha -->
+        <section id="gameBoard" class="hidden">
+            <div id="board"></div>
+            <div id="blocks"></div>
+            <button id="pauseButton">Pauza</button>
+        </section>
+
+        <!-- Obrazovka žebříčků -->
+        <section id="leaderboard" class="hidden">
+            <h2>Žebříček</h2>
+            <ul id="leaderboardList"></ul>
+            <button id="backToMenuButton">Zpět do menu</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 1010 Hra</p>
+    </footer>
+
+    <script src="src/main.js"></script>
+</body>
+</html>
