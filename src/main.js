@@ -34,6 +34,10 @@ pauseButton.addEventListener("click", () => {
     alert("Hra pozastavena.");
 });
 
+function updateHighScore() {
+    highScoreDisplay.textContent = game.score;
+}
+
 // Spuštění nové hry
 newGameButton.addEventListener("click", startNewGame);
 
@@ -56,10 +60,13 @@ class Game {
     }
 
     generateBlocks() {
-        this.blocks = [new Block(), new Block(), new Block()];
-        this.displayBlocks();
+        // Pokud máme stále nějaké bloky, neprovádíme žádnou změnu
+        if (this.blocks.length === 0) {
+            this.blocks = [new Block(), new Block(), new Block()]; // Vygeneruj tři nové bloky
+            this.displayBlocks();
+        }
     }
-
+    
     displayBlocks() {
         blocksContainer.innerHTML = ""; // Vymaž staré bloky
         this.blocks.forEach((block, index) => {
@@ -67,8 +74,8 @@ class Game {
             blockElement.classList.add("block");
             blockElement.dataset.index = index;
             blockElement.draggable = true;
-
-            // Přidej reprezentaci tvaru
+    
+            // Nastavení vzhledu bloku
             block.shape.forEach(row => {
                 const rowElement = document.createElement("div");
                 rowElement.style.display = "flex";
@@ -82,12 +89,20 @@ class Game {
                 });
                 blockElement.appendChild(rowElement);
             });
-
+    
+            // Zajistíme, že během přetahování bude vidět celý blok
             blockElement.addEventListener("dragstart", (e) => {
                 this.draggingBlock = block;
                 e.dataTransfer.setData("text/plain", index);
+                setTimeout(() => {
+                    blockElement.classList.add("dragging");
+                }, 0);
             });
-
+    
+            blockElement.addEventListener("dragend", () => {
+                blockElement.classList.remove("dragging");
+            });
+    
             blocksContainer.appendChild(blockElement);
         });
     }
@@ -158,7 +173,50 @@ class Game {
                 }
             }
         }
+        setTimeout(() => {
+            this.clearFullLines(); // Zkontroluj a vymaž plné řady/sloupce po umístění bloku
+        }, 0);
     }
+
+    clearFullLines() {
+        const rowsToClear = [];
+        const colsToClear = [];
+
+        // Zkontroluj plné řady
+        for (let i = 0; i < 10; i++) {
+            if (this.board[i].every(cell => cell === true)) {
+                rowsToClear.push(i);
+            }
+        }
+
+        // Zkontroluj plné sloupce
+        for (let j = 0; j < 10; j++) {
+            if (this.board.every(row => row[j] === true)) {
+                colsToClear.push(j);
+            }
+        }
+
+        // Vymaž plné řady
+        rowsToClear.forEach(row => {
+            this.board[row] = Array(10).fill(null);
+        });
+
+        // Vymaž plné sloupce
+        colsToClear.forEach(col => {
+            for (let i = 0; i < 10; i++) {
+                this.board[i][col] = null;
+            }
+        });
+
+        // Přičti body za vymazání řad a sloupců
+        const cleared = rowsToClear.length + colsToClear.length;
+        this.score += cleared * 10;
+
+        // Aktualizuj zobrazení desky a skóre
+        this.updateBoard();
+        updateHighScore();
+    }
+
 }
 
 // Třída bloku
@@ -172,7 +230,9 @@ class Block {
         const shapes = [
             [[1, 1], [1, 1]], // čtverec
             [[1, 1, 1], [0, 1, 0]], // T
-            [[1], [1], [1]], // čára
+            [[1], [1], [1]], // čára svislá
+            [[1, 1, 1]], // čára vodorovná
+            [[1]], // 1x1
         ];
         return shapes[Math.floor(Math.random() * shapes.length)];
     }
