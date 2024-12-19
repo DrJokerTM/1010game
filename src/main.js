@@ -60,7 +60,7 @@ class Game {
     }
 
     generateBlocks() {
-        // Pokud máme stále nějaké bloky, neprovádíme žádnou změnu
+        // Pokud máme všechny bloky použité, vygeneruj nové bloky pouze v tomto okamžiku
         if (this.blocks.length === 0) {
             this.blocks = [new Block(), new Block(), new Block()]; // Vygeneruj tři nové bloky
             this.displayBlocks();
@@ -139,8 +139,7 @@ class Game {
                 this.blocks.splice(this.blocks.indexOf(this.draggingBlock), 1);
                 this.generateBlocks();
                 this.updateBoard();
-                this.score += 10;
-                updateHighScore();
+
             }
         });
     }
@@ -163,7 +162,22 @@ class Game {
         return true;
     }
 
+    canPlaceAnyBlock() {
+        for (const block of this.blocks) {
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 10; col++) {
+                    if (this.canPlaceBlock(block, row, col)) {
+                        return true; // Našli jsme místo, kde blok může být umístěn
+                    }
+                }
+            }
+        }
+        return false; // Žádný blok nelze nikam umístit
+    }
+    
+
     placeBlock(block, row, col) {
+        // Umístění bloku na herní pole
         for (let i = 0; i < block.shape.length; i++) {
             for (let j = 0; j < block.shape[i].length; j++) {
                 if (block.shape[i][j]) {
@@ -173,9 +187,25 @@ class Game {
                 }
             }
         }
+    
+        // Odstraň blok z pole
+        const blockIndex = this.blocks.indexOf(block);
+        if (blockIndex > -1) {
+            this.blocks.toSpliced(blockIndex, 1);
+        }
+        // Zkontroluj, zda byly všechny bloky použity
+        if (this.blocks.length === 0) {
+            this.generateBlocks(); // Vygeneruj nové bloky až po použití všech
+        }
+    
+        // Zobraz aktuální bloky
+        setTimeout(() => {
+            this.displayBlocks();
+        }, 0);
         setTimeout(() => {
             this.clearFullLines(); // Zkontroluj a vymaž plné řady/sloupce po umístění bloku
         }, 0);
+
     }
 
     clearFullLines() {
@@ -229,9 +259,12 @@ class Block {
         // Náhodně generovat tvar bloku
         const shapes = [
             [[1, 1], [1, 1]], // čtverec
+            [[1, 1, 1], [1, 1, 1], [1, 1, 1]], // velký čtverec
             [[1, 1, 1], [0, 1, 0]], // T
             [[1], [1], [1]], // čára svislá
+            [[1], [1]], // čára svislá krátká
             [[1, 1, 1]], // čára vodorovná
+            [[1, 1]], // čára vodorovná krátká
             [[1]], // 1x1
         ];
         return shapes[Math.floor(Math.random() * shapes.length)];
