@@ -1,4 +1,9 @@
 // Hlavní JavaScriptový soubor
+window.onload = () => {
+    document.getElementById("instantEndGame").addEventListener("click", () => {
+        game.endGame(); // Zavolejte metodu pro ukončení hry
+    });
+};
 
 // Prvky DOM
 const newGameButton = document.getElementById("newGameButton");
@@ -8,7 +13,6 @@ const menu = document.getElementById("menu");
 const highScoreDisplay = document.getElementById("highScore");
 const leaderboard = document.getElementById("leaderboard");
 const leaderboardList = document.getElementById("leaderboardList");
-const pauseButton = document.getElementById("pauseButton");
 const blocksContainer = document.getElementById("blocks");
 
 // Stav hry
@@ -28,11 +32,6 @@ function continueGame() {
     menu.classList.add("hidden");
     gameBoard.classList.remove("hidden");
 }
-
-// Pauza hry
-pauseButton.addEventListener("click", () => {
-    alert("Hra pozastavena.");
-});
 
 function updateHighScore() {
     highScoreDisplay.textContent = game.score;
@@ -205,6 +204,11 @@ class Game {
         setTimeout(() => {
             this.clearFullLines(); // Zkontroluj a vymaž plné řady/sloupce po umístění bloku
         }, 0);
+        setTimeout(() => {
+            if (!this.canPlaceAnyBlock()) {
+                this.endGame(); // Hra skončila
+            }
+        }, 0);
 
     }
 
@@ -247,6 +251,47 @@ class Game {
         updateHighScore();
     }
 
+    endGame() {
+        // Zešednout zbylé bloky
+        const blockElements = document.querySelectorAll(".block");
+        blockElements.forEach(blockElement => {
+            blockElement.classList.add("disabled");
+        });
+    
+        // Přidat překryvné okno "Konec hry"
+        const gameOverOverlay = document.createElement("div");
+        gameOverOverlay.id = "gameOverOverlay";
+    
+        const gameOverText = document.createElement("h2");
+        gameOverText.textContent = "Konec hry!";
+    
+        const scoreText = document.createElement("p");
+        scoreText.textContent = `Vaše skóre: ${this.score}`;
+
+        const backButton = document.createElement("button");
+        backButton.textContent = "Zpět na hlavní obrazovku";
+        backButton.addEventListener("click", () => {
+            // Návrat na hlavní obrazovku
+            document.getElementById("menu").classList.remove("hidden");
+            document.getElementById("gameBoard").classList.add("hidden");
+            gameOverOverlay.remove();
+        });
+    
+        gameOverOverlay.appendChild(gameOverText);
+        gameOverOverlay.appendChild(scoreText);
+        gameOverOverlay.appendChild(backButton);
+        document.body.appendChild(gameOverOverlay);
+    }
+    
+    
+    resetGame() {
+        this.board = this.initBoard();
+        this.score = 0;
+        this.blocks = [];
+        menu.classList.remove("hidden");
+        gameBoard.classList.add("hidden");
+    }
+
 }
 
 // Třída bloku
@@ -266,6 +311,8 @@ class Block {
             [[1, 1, 1]], // čára vodorovná
             [[1, 1]], // čára vodorovná krátká
             [[1]], // 1x1
+            
+
         ];
         return shapes[Math.floor(Math.random() * shapes.length)];
     }
