@@ -104,6 +104,94 @@ class Game {
     
             blocksContainer.appendChild(blockElement);
         });
+
+        // Přetahování na mobilních zařízeních
+        blocksContainer.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const blockElement = touch.target.closest('.block');
+            if (blockElement) {
+                const index = blockElement.dataset.index;
+                this.draggingBlock = this.blocks[index];
+
+                blockElement.classList.add("dragging");
+
+                // Blokování scrollování během přetahování
+                e.preventDefault();
+            }
+        });
+
+        blocksContainer.addEventListener('touchmove', (e) => {
+            if (this.draggingBlock) {
+                const touch = e.touches[0];
+                const blockElement = document.querySelector(".dragging");
+
+                blockElement.style.position = "absolute";
+                blockElement.style.left = `${touch.pageX - blockElement.offsetWidth / 2}px`;
+                blockElement.style.top = `${touch.pageY - blockElement.offsetHeight / 2}px`;
+
+                // Blokování scrollování během pohybu
+                e.preventDefault();
+            }
+        });
+
+        blocksContainer.addEventListener('touchend', (e) => {
+            if (this.draggingBlock) {
+                const touch = e.changedTouches[0];
+                
+                // Získání pozice herní plochy
+                const boardElement = document.getElementById("board");
+                const boardRect = boardElement.getBoundingClientRect();
+                
+                // Získání velikosti buňky
+                const cellSize = 30; // Velikost jedné buňky (např. 30px)
+        
+                // Získání souřadnic dotyku
+                const offsetX = touch.clientX - boardRect.left;
+                const offsetY = touch.clientY - boardRect.top;
+        
+                // Výpočet cílové buňky
+                const row = Math.floor(offsetY / cellSize)-1; // Řádek
+                const col = Math.floor(offsetX / cellSize)-1; // Sloupec
+        
+                // Ověření platnosti cílové buňky
+                if (row >= 0 && row < this.board.length && col >= 0 && col < this.board[0].length) {
+                    // Umístění bloku na středu buňky
+                    const targetX = col * cellSize + boardRect.left + cellSize / 2;
+                    const targetY = row * cellSize + boardRect.top + cellSize / 2;
+        
+                    // Nastavení pozice bloku ve středu vybrané buňky
+                    const blockElement = document.querySelector(".dragging");
+                    blockElement.style.left = `${targetX - blockElement.offsetWidth / 2}px`; // Posun do středu
+                    blockElement.style.top = `${targetY - blockElement.offsetHeight / 2}px`; // Posun do středu
+        
+                    // Logování pro kontrolu
+                    console.log("Block placed at grid:", row, col);
+                    
+                    // Provádění dalších herních logických operací, např. ověření, zda lze blok umístit
+                    if (this.canPlaceBlock(this.draggingBlock, row, col)) {
+                        this.placeBlock(this.draggingBlock, row, col); // Umístění bloku do herního plánu
+                        this.blocks.splice(this.blocks.indexOf(this.draggingBlock), 1); // Odstranění bloku z pole
+                        this.generateBlocks(); // Generování nových bloků
+                        this.updateBoard(); // Aktualizace herního plánu
+                    } else {
+                        console.error("Cannot place block at this position.");
+                    }
+                } else {
+                    console.error("Block dropped outside the board.");
+                }
+        
+                // Odebrání třídy "dragging"
+                const blockElement = document.querySelector(".dragging");
+                blockElement.classList.remove("dragging");
+                this.draggingBlock = null;
+        
+                e.preventDefault();
+            }
+        });
+        
+        
+        
+        
     }
 
     updateBoard() {
@@ -138,7 +226,6 @@ class Game {
                 this.blocks.splice(this.blocks.indexOf(this.draggingBlock), 1);
                 this.generateBlocks();
                 this.updateBoard();
-
             }
         });
     }
@@ -173,7 +260,6 @@ class Game {
         }
         return false; // Žádný blok nelze nikam umístit
     }
-    
 
     placeBlock(block, row, col) {
         // Umístění bloku na herní pole
@@ -209,7 +295,6 @@ class Game {
                 this.endGame(); // Hra skončila
             }
         }, 0);
-
     }
 
     clearFullLines() {
@@ -261,7 +346,7 @@ class Game {
         // Přidat překryvné okno "Konec hry"
         const gameOverOverlay = document.createElement("div");
         gameOverOverlay.id = "gameOverOverlay";
-    
+        
         const gameOverText = document.createElement("h2");
         gameOverText.textContent = "Konec hry!";
     
@@ -293,7 +378,6 @@ class Game {
     }
 
 }
-
 // Třída bloku
 class Block {
     constructor() {
