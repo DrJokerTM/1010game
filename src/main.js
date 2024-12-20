@@ -27,10 +27,13 @@ function startNewGame() {
     updateHighScore();
 }
 
-// Obnovení předchozí hry
+// Inicializace rozehrané hry
 function continueGame() {
+    game = new Game(savedGame);
     menu.classList.add("hidden");
     gameBoard.classList.remove("hidden");
+    game.start();
+    updateHighScore();
 }
 
 function updateHighScore() {
@@ -40,22 +43,64 @@ function updateHighScore() {
 // Spuštění nové hry
 newGameButton.addEventListener("click", startNewGame);
 
+// Pokračovat ve hře
+continueGameButton.addEventListener("click", () => {
+    const savedGame = Game.loadGameState();
+    if (savedGame) {
+        continueGame();
+    } else {
+        console.log("Žádný uložený stav nebyl nalezen.");
+    }
+});
+
 // Třída hry
 class Game {
-    constructor() {
-        this.board = this.initBoard();
-        this.score = 0;
-        this.blocks = [];
+    constructor(savedState = null) {
+        if (savedState) {
+            this.board = savedState.board;
+            this.score = savedState.score;
+            this.blocks = savedState.blocks;
+        } else {
+            this.board = this.initBoard();
+            this.score = 0;
+            this.blocks = [];
+        }
         this.draggingBlock = null;
+    
+        // Zobraz uložené bloky, pokud existují
+        if (this.blocks.length > 0) {
+            this.displayBlocks();
+        }
     }
+    
 
     initBoard() {
         return Array.from({ length: 10 }, () => Array(10).fill(null));
     }
 
     start() {
-        this.generateBlocks();
+        if (this.blocks.length === 0) {
+            this.generateBlocks();
+        }
         this.updateBoard();
+    }
+
+    saveGameState() {
+        const gameState = {
+            board: this.board,
+            score: this.score,
+            blocks: this.blocks,
+        };
+        localStorage.setItem("gameState", JSON.stringify(gameState));
+    }
+
+    static loadGameState() {
+        const savedState = localStorage.getItem("gameState");
+        return savedState ? JSON.parse(savedState) : null;
+    }
+
+    clearGameState() {
+        localStorage.removeItem("gameState");
     }
 
     generateBlocks() {
@@ -377,6 +422,18 @@ class Game {
         gameBoard.classList.add("hidden");
     }
 
+    static loadGameState() {
+        const savedState = localStorage.getItem("gameState");
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            const game = new Game(state); // Vytvoř novou instanci hry
+            game.displayBlocks(); // Zobraz bloky
+            return game; // Vrať instanci
+        }
+        return null; // Pokud není uložený stav, vrať null
+    }
+    
+
 }
 // Třída bloku
 class Block {
@@ -401,3 +458,34 @@ class Block {
         return shapes[Math.floor(Math.random() * shapes.length)];
     }
 }
+
+
+// Spuštění nové hry
+function startNewGame() {
+    game = new Game();
+    game.clearGameState();
+    menu.classList.add("hidden");
+    gameBoard.classList.remove("hidden");
+    game.start();
+    updateHighScore();
+}
+
+// Obnovení předchozí hry
+function continueGame() {
+    const savedState = Game.loadGameState();
+    if (savedState) {
+        game = new Game(savedState);
+        menu.classList.add("hidden");
+        gameBoard.classList.remove("hidden");
+        game.start();
+        updateHighScore();
+    }
+}
+
+// Uložit stav hry při ukončení hry
+window.addEventListener("beforeunload", () => {
+    if (game) {
+        game.saveGameState();
+    }
+});
+
